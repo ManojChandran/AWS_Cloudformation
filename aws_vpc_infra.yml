@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "AWS CloudFormation template for VPC."
+Parameters:
+   KeyName:
+    Description: "Name of an existing EC2 KeyPair to enable SSH access to hosts"
+    Type: "AWS::EC2::KeyPair::KeyName"
+    ConstraintDescription: "must be the name of an existing EC2 KeyPair."
+Mappings:
+   SubnetConfig: # CIDR
+    VPC:
+     CIDR: "10.0.0.0/16"
+    Public:
+     CIDR: "10.0.0.0/24"
+    Private:
+     CIDR: "10.0.1.0/24"
+#Conditions:
+Resources:
+   VPC: # declaring VPC resource
+    Type: "AWS::EC2::VPC"
+    Properties:
+     CidrBlock:
+      "Fn::FindInMap":
+       - SubnetConfig
+       - VPC
+       - CIDR
+   InternetGateway: # declaring internet gateway resource
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+   GatewayToInternet: # attaching internet gateway to VPC
+     Type: "AWS::EC2::VPCGatewayAttachment"
+     Properties:
+      VpcId:
+       Ref: VPC
+      InternetGatewayId:
+       Ref: InternetGateway
+   PublicSubnet: # declaring public subnet
+    Type: "AWS::EC2::Subnet"
+    Properties:
+     VpcId:
+      Ref: VPC
+     CidrBlock:
+      "Fn::FindInMap":
+       - SubnetConfig
+       - Public
+       - CIDR
+   PublicRouteTable: # declaring public route table
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+     VpcId:
+      Ref: VPC
+   PrivateSubnet: # declaring private subnet
+    Type: "AWS::EC2::Subnet"
+    Properties:
+     VpcId:
+      Ref: VPC
+     CidrBlock:
+      "Fn::FindInMap":
+       - SubnetConfig
+       - Private
+       - CIDR
+   PrivateRouteTable: # declaring private route table
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+     VpcId:
+      Ref: VPC
