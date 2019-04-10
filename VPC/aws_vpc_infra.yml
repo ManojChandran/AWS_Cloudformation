@@ -5,6 +5,14 @@ Parameters:
     Description: "Name of an existing EC2 KeyPair to enable SSH access to hosts"
     Type: "AWS::EC2::KeyPair::KeyName"
     ConstraintDescription: "must be the name of an existing EC2 KeyPair."
+   SSHLocation:
+    Description: "Lockdown SSH access to the bastion host (default can be accessed from anywhere)"
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Default: "0.0.0.0/0"
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: "must be a valid CIDR range of the form x.x.x.x/x."
 Mappings:
    SubnetConfig: # CIDR
     VPC:
@@ -177,14 +185,6 @@ Resources:
     Properties:
      VpcId:
       Ref: VPC
-     Tags:
-      -
-     Key: Application
-       Value:
-        Ref: "AWS::StackId"
-      -
-     Key: Network
-       Value: Private
    InboundPrivateNetworkAclEntry:
     Type: "AWS::EC2::NetworkAclEntry"
     Properties:
