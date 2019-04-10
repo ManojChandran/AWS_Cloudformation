@@ -25,7 +25,7 @@ Resources:
        - CIDR
    InternetGateway: # declaring internet gateway resource
     Type: "AWS::EC2::InternetGateway"
-    Properties:
+#    Properties:
    GatewayToInternet: # attaching internet gateway to VPC
      Type: "AWS::EC2::VPCGatewayAttachment"
      Properties:
@@ -48,6 +48,36 @@ Resources:
     Properties:
      VpcId:
       Ref: VPC
+   PublicSubnetRouteTableAssociation: # Associte route table to public subnet
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+     SubnetId:
+      Ref: PublicSubnet
+     RouteTableId:
+      Ref: PublicRouteTable
+   PublicRoute: # declaring public route to internet gateway
+    Type: "AWS::EC2::Route"
+    DependsOn: GatewayToInternet
+    Properties:
+     RouteTableId:
+      Ref: PublicRouteTable
+     DestinationCidrBlock: "0.0.0.0/0"
+     GatewayId:
+      Ref: InternetGateway
+   NATIPAddress:
+    Type: "AWS::EC2::EIP"
+    DependsOn: GatewayToInternet
+    Properties:
+     Domain: vpc
+   NATDevice:
+     Type: AWS::EC2::NatGateway
+     Properties:
+       AllocationId:
+         Fn::GetAtt:
+           - NATIPAddress
+           - AllocationId
+       SubnetId:
+        Ref: PublicSubnet
    PrivateSubnet: # declaring private subnet
     Type: "AWS::EC2::Subnet"
     Properties:
@@ -63,3 +93,18 @@ Resources:
     Properties:
      VpcId:
       Ref: VPC
+   PrivateSubnetRouteTableAssociation: # Associte route table to public subnet
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+     SubnetId:
+      Ref: PrivateSubnet
+     RouteTableId:
+      Ref: PrivateRouteTable
+   PrivateRoute: # declaring private route to NAT gateway
+    Type: "AWS::EC2::Route"
+    Properties:
+     RouteTableId:
+      Ref: PrivateRouteTable
+     DestinationCidrBlock: "0.0.0.0/0"
+     NatGatewayId:
+      Ref: NATDevice
