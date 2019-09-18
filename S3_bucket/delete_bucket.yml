@@ -1,0 +1,10 @@
+---
+# simple cloudformation template to delete a S3 bucket
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  BucketName:
+    Description: name of the S3 bucket getting created
+    Type: String
+Mappings:
+Resources:
+Outputs:
