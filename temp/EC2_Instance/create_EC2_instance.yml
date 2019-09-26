@@ -1,0 +1,87 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+#Description: >
+
+
+#Metadata:
+
+Parameters:
+  SecurityGroupDescription:
+    Description: Security Group Description (Simple parameter)
+    Type: String
+  SecurityGroupPort:
+    Description: Simple Description of Number parameter, with Minvalue and MaxValue
+    Type: Number
+    MaxValue: 1130
+    MinValue: 65535
+  InstanceType:
+    Description: Webserver EC2 instance type (has Default, Allowedvalues)
+    Type: String
+    Default: t2.small
+    Allowedvalues:
+      - t1.micro
+      - t2.micro
+      - t2.nano
+      - t2.small
+    ConstraintDescription: must be a valid EC2 instance type.
+  DBPwd:
+    NoEcho: true
+    Description: The database admin account password (won't be echoed)
+    Type: String
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances.
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: must be the name of an existing EC2 Keypair.
+  SecurityGroupCIDR:
+    Description: The IP range that can be used to communicate in the EC2 instance
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 0.0.0.0/0
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR of range x.x.x.x/x.
+  MyInstanceImageId:
+    Description: AMI for the instances
+    Type: "List<AWS::EC2::Image::Id>"
+  MyVPC:
+    Description: VPC to Operate in
+    Type: AWS::EC2::VPC::Id
+  MySubnetIDS:
+    Description: Subnet IDs list
+    Type: "List<AWS::EC2::Subnet::Id>"
+  DBSubnetIpBlock:
+    Description: "Comma-delimited list of three CIDR blocks"
+    Type: CommaDelimitedList
+    Default: "10.0.48.0/24,10.0.112.0/24,10.0.176.0/24"
+
+#Mappings:
+
+#Conditions:
+
+Resources:
+ MyEC2Instance:
+   Type: "AWS::EC2::Instance"
+   Properties:
+     InstanceType: !Ref InstanceType # !Ref = Fn::Ref
+     KeyName: !Ref KeyName
+     ImageId: !Ref MyInstanceImageId
+     SubnetId: !Ref DbSubnet1
+
+  MySecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: !Ref SecurityGroupDescription
+      SecurityGroupIngress:
+        - CidrIp: !Ref SecurityGroupCIDR
+          #CidrIpv6: String     # optional
+          #FromPort: Integer     # optional
+          #IpProtocol: String     # required
+      VpcId: !Ref MyVPC
+
+  DbSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Select [0, DBSubnetIpBlock]
+#Outputs:

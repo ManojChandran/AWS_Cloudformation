@@ -1,0 +1,20 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'AWS cloudformation template to create a S3 bucket'
+Metadata:
+  License: Apache-2.0
+
+Parameters:
+  BucketName:
+    Description: Name of the s3 bucket you want to create
+    Type: String
+#Mappings:
+#Conditions:
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+Outputs:
+  BucketName:
+    Value: !Ref 'S3Bucket'
