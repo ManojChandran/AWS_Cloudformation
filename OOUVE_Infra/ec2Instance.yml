@@ -1,7 +1,7 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
 
-Description: 'AWS CloudFormation Template for EC2Instance'
+Description: 'AWS CloudFormation Template for Simple EC2Instance'
 
 Metadata:
   License: Apache-2.0
@@ -55,10 +55,19 @@ Resources:
       ImageId: !Ref MyInstanceImageId
       KeyName: !Ref KeyName
       SubnetId: !Ref MySubnetIDS
-      Tags:                # optional, list of Tag
+      Tags: 
         - Key: Name
           Value: !Ref MySubnetIDS
 Outputs:
   InstanceId:
     Description: InstanceId of the newly created EC2 instance
     Value: !Ref 'EC2Instance'
+  PrivateDnsName:
+    Description: The private DNS name of the instance.
+    Value: !GetAtt EC2Instance.PrivateDnsName
+  PublicDnsName:
+    Description: The public DNS name of the instance.
+    Value: !GetAtt EC2Instance.PublicDnsName
+  PrivateIp:
+    Description: Private IP of the instance.
+    Value: !GetAtt EC2Instance.PrivateIp
