@@ -1,4 +1,15 @@
 ---
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: This template deploys a VPC, with a pair of public and private subnets spread across two Availability Zones. It deploys an Internet Gateway, with a default route on the public subnets. It deploys a pair of NAT Gateways (one in each AZ), and default routes for them in the private subnets.
@@ -121,8 +132,8 @@ Resources:
     DependsOn: VPCGatewayAttachment
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: InternetGateway
-      RouteTableId: PublicRouteTable
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref PublicRouteTable
 
   PublicSubnet1RouteTableAssociation: # Associate Public subnet route table to public subnet in AZ1
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -172,10 +183,14 @@ Resources:
 
   DefaultPrivateRoute1:
     Type: AWS::EC2::Route
+    DependsOn: NatGateway1
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       RouteTableId: !Ref PrivateRouteTable1
-      GatewayId: !Ref NatGateway1
+      NatGatewayId: !Ref NatGateway1
 
   PrivateSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -193,10 +208,14 @@ Resources:
 
   DefaultPrivateRoute2:
     Type: AWS::EC2::Route
+    DependsOn: NatGateway2
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       RouteTableId: !Ref PrivateRouteTable2
-      GatewayId: !Ref NatGateway2
+      NatGatewayId: !Ref NatGateway2
 
   PrivateSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
