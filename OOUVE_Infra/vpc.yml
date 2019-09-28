@@ -184,9 +184,6 @@ Resources:
   DefaultPrivateRoute1:
     Type: AWS::EC2::Route
     DependsOn: NatGateway1
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT10M
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       RouteTableId: !Ref PrivateRouteTable1
@@ -209,9 +206,6 @@ Resources:
   DefaultPrivateRoute2:
     Type: AWS::EC2::Route
     DependsOn: NatGateway2
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT10M
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       RouteTableId: !Ref PrivateRouteTable2
