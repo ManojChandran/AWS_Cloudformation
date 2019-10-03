@@ -1,0 +1,81 @@
+---
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: 'Cloudformation template to create Natgateway in VPC.'
+
+Metadata:
+  License: Apache-2.0
+
+Parameters:
+  MyVPC:
+    Description: VPC to Operate in
+    Type: AWS::EC2::VPC::Id
+
+  PublicSubnetID:
+    Description: Add public subnet for setting NAT gateway
+    Type: "List<AWS::EC2::Subnet::Id>"
+
+  PrivteSubnetID:
+    Description: Add private subnet to route through NAT gateway
+    Type: "List<AWS::EC2::Subnet::Id>"
+
+  PrivteSubnetRouteTable:
+    Description: Give Private Subnet routetable ID
+    Type: String
+    ConstraintDescription: Correct routetable ID is required for NAT routing of private subnet
+#Mappings:
+
+#Conditions:
+
+Resources:
+  NatGatewayEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub ${MyVPC} NatEIP
+
+  NatGateway:
+    DependsOn: NatGatewayEIP
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGatewayEIP.AllocationId
+      SubnetId: !Select [ 0, !Ref PublicSubnetID ]
+      Tags:
+        - Key: Name
+          Value: !Sub ${MyVPC} Natgateway
+
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    DependsOn: NatGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      RouteTableId: !Ref PrivteSubnetRouteTable
+      NatGatewayId: !Ref NatGateway
+      Tags:
+        - Key: Name
+          Value: !Sub ${MyVPC} NatRoute
+
+Outputs:
+  MyNatGateway:
+    Description: A reference to the created NAT gateway
+    Value: !Ref NatGateway
+    Export:
+      Name: !Sub "${MyVPC}-NatGateway"
+  MyNatGatewayEIP:
+    Description: A reference to the created NAT gateway
+    Value: !Ref NatGatewayEIP
+    Export:
+      Name: !Sub "${MyVPC}-NatGatewayEIP"
