@@ -56,7 +56,7 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: !Sub ${MyVPC} Routes
+          Value: !Sub ${SubnetType} Subnet
 
   RouteTable:
     Type: AWS::EC2::RouteTable
@@ -64,13 +64,16 @@ Resources:
       VpcId: !Ref MyVPC
       Tags:
         - Key: Name
-          Value: !Sub ${MyVPC} Routetable
+          Value: !Sub ${SubnetType} Routetable
 
   SubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref RouteTable
       SubnetId: !Ref Subnet
+      Tags:
+        - Key: Name
+          Value: !Sub ${SubnetType} Subnet
 
   PublicRoute:
     Condition: PublicSubnet
@@ -79,6 +82,9 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref VPCGatewayID
       RouteTableId: !Ref RouteTable
+      Tags:
+        - Key: Name
+          Value: !Sub ${SubnetType} Subnet route
 
 Outputs:
   MySubnet:
