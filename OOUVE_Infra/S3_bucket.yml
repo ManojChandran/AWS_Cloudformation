@@ -12,6 +12,7 @@
 # limitations under the License.
 AWSTemplateFormatVersion: 2010-09-09
 Description: 'AWS cloudformation template to create a S3 bucket'
+
 Metadata:
   License: Apache-2.0
 
