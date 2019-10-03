@@ -1,4 +1,15 @@
 ---
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: 'AWS Cloudformation template for Security group configuration'
@@ -10,6 +21,11 @@ Parameters:
   EnvironmentName:
     Description: An Environment name that will prefix the resources
     Type: String
+
+  MyVPC:
+    Description: VPC to Operate in
+    Type: AWS::EC2::VPC::Id
+
   SecurityGroupCIDR:
     Description: The IP address range that can be used to SSH to the EC2 instances
     Type: String
@@ -24,12 +40,12 @@ Parameters:
 #Conditions:
 
 Resources:
-  # here we define a SSH security group that will be used in the entire company
   MySSHSecurityGroup:
     # http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable SSH access via port 22
+      VpcId: !Ref MyVPC
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
@@ -37,7 +53,7 @@ Resources:
         CidrIp: !Ref 'SecurityGroupCIDR'
       Tags:
         - Key: Name
-          Value: !Ref EnvironmentName        
+          Value: !Ref EnvironmentName
 Outputs:
   StackSSHSecurityGroup:
     Description: The SSH Security Group for our Company
