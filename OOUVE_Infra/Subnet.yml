@@ -1,0 +1,88 @@
+---
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: 'Cloudformation template to create Public subnet in VPC.'
+
+Metadata:
+  License: Apache-2.0
+
+Parameters:
+  MyVPC:
+    Description: VPC to Operate in
+    Type: AWS::EC2::VPC::Id
+
+  VPCGatewayID:
+    Description: Input Internet gateway ID associated with the VPC.
+    Type: String
+    ConstraintDescription: Please make sure correct IGW id value is provided.
+
+  SubnetType:
+    Description: Tell subnet to be Public or Private
+    Type: String
+    Default: Public
+
+  SubnetCIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet.
+    Type: String
+    Default: 10.192.10.0/24
+    ConstraintDescription: Must be compatible with parent VPC.
+
+  AvailabiltyZone:
+    Description: Select the AZ for the Subnet
+    Type: "List<AWS::EC2::AvailabilityZone::Name>"
+#Mappings:
+
+Conditions:
+  PublicSubnet: !Equals [!Ref SubnetType, 'Public']
+
+Resources:
+  Subnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref SubnetCIDR
+      AvailabilityZone: !Select [ 0, !Ref AvailabiltyZone ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${MyVPC} Routes
+
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${MyVPC} Routetable
+
+  SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref Subnet
+
+  PublicRoute:
+    Condition: PublicSubnet
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref VPCGatewayID
+      RouteTableId: !Ref RouteTable
+
+Outputs:
+  MySubnet:
+    Description: A reference to the public subnet in the 2nd Availability Zone
+    Value: !Ref Subnet
+    Export:
+      Name: !Sub "${MyVPC}-${SubnetType}-Subnet"
