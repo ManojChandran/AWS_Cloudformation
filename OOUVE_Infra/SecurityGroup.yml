@@ -26,6 +26,10 @@ Parameters:
     Description: VPC to Operate in
     Type: AWS::EC2::VPC::Id
 
+  MySecurityGroupName:
+    Description: Security Group Name
+    Type: String
+
   SecurityGroupCIDR:
     Description: The IP address range that can be used to SSH to the EC2 instances
     Type: String
@@ -40,23 +44,32 @@ Parameters:
 #Conditions:
 
 Resources:
-  MySSHSecurityGroup:
+  MySecurityGroup:
     # http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Enable SSH access via port 22
+      GroupDescription: Enable SSH access
+      GroupName: !Ref MySecurityGroupName
       VpcId: !Ref MyVPC
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
         CidrIp: !Ref 'SecurityGroupCIDR'
+      - IpProtocol: tcp
+        FromPort: 3389
+        ToPort: 3389
+        CidrIp: !Ref 'SecurityGroupCIDR'
+      - IpProtocol: icmp
+        FromPort: -1
+        ToPort: -1
+        CidrIp: !Ref 'SecurityGroupCIDR'
       Tags:
         - Key: Name
           Value: !Ref EnvironmentName
 Outputs:
-  StackSSHSecurityGroup:
-    Description: The SSH Security Group for our Company
-    Value: !Ref MySSHSecurityGroup
+  StackSecurityGroup:
+    Description: The Security Group
+    Value: !Ref MySecurityGroup
     Export:
-      Name: SSHSecurityGroup
+      Name: !Sub "${EnvironmentName}-MySecurityGroup"
