@@ -1,0 +1,53 @@
+---
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: 'AWS Cloudformation template for VPC peering'
+
+Metadata:
+  License: Apache-2.0
+
+Parameters:
+  MyVPC:
+    Description: VPC to Operate in
+    Type: AWS::EC2::VPC::Id
+
+  PeerOwnerIDdetails:
+    Description: Owner ID of VPC to peer with.
+    Type: String
+
+  PeerVPCRoleArn:
+    Description: VPC Role Arn to peer with.
+    Type: String
+
+  PeerOwnerVPCId:
+    Description: VPC Id to peer with.
+    Type: String
+
+#Mappings:
+
+#Conditions:
+
+Resources:
+  VpcPeeringConnection:
+    Type: AWS::EC2::VPCPeeringConnection
+    Properties:
+      PeerOwnerId: !Ref PeerOwnerIDdetails
+      PeerRoleArn: !Ref PeerVPCRoleArn
+      PeerVpcId: !Ref PeerOwnerVPCId
+      VpcId: !Ref MyVPC
+      Tags:
+        - Key: Name
+          Value: !Ref MyVPC
+
+#Outputs:
