@@ -31,12 +31,17 @@ Parameters:
     Description: Tell subnet to be Public or Private
     Type: String
     Default: Public
+    AllowedValues: [Public, Private]
+    ConstraintDescription: must be Public or Private subnet.
 
   SubnetCIDR:
     Description: Please enter the IP range (CIDR notation) for the public subnet.
     Type: String
+    MinLength: 9
+    MaxLength: 18
     Default: 10.192.10.0/24
-    ConstraintDescription: Must be compatible with parent VPC.
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
 
   AvailabiltyZone:
     Description: Select the AZ for the Subnet
