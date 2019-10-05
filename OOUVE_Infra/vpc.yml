@@ -21,12 +21,17 @@ Parameters:
   EnvironmentName:
     Description: An Environment name that will prefix the resources
     Type: String
+    AllowedValues: [dev, test, prod, support]
+    ConstraintDescription: must be dev, test, prod or support
 
   VpcCIDR:
     Description: Please enter the IP range (CIDR notation) for this VPC
     Type: String
+    MinLength: 9
+    MaxLength: 18
     Default: 10.192.0.0/16
-
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
 #Mappings:
 
 #Conditions:
