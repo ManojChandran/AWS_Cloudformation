@@ -21,8 +21,8 @@ Parameters:
   EnvironmentName:
     Description: An Environment name that will prefix the resources
     Type: String
-    AllowedValues: [dev, test, prod, support]
-    ConstraintDescription: must be dev, test, prod or support
+    AllowedValues: [DEV, TEST, PROD, SUPP]
+    ConstraintDescription: must be DEV, TEST, PROD or SUPP
 
   VpcCIDR:
     Description: Please enter the IP range (CIDR notation) for this VPC
