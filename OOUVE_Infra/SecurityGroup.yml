@@ -35,7 +35,7 @@ Parameters:
     Type: String
     MinLength: 9
     MaxLength: 18
-    Default: 0.0.0.0/0
+    Default: 10.192.0.0/16
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
 
@@ -52,18 +52,23 @@ Resources:
       GroupName: !Ref MySecurityGroupName
       VpcId: !Ref MyVPC
       SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: !Ref 'SecurityGroupCIDR'
-      - IpProtocol: tcp
-        FromPort: 3389
-        ToPort: 3389
-        CidrIp: !Ref 'SecurityGroupCIDR'
-      - IpProtocol: icmp
-        FromPort: -1
-        ToPort: -1
-        CidrIp: !Ref 'SecurityGroupCIDR'
+        # Adds an inbound rule to a security group, which permits instances
+        # to receive traffic from the specified IPv4 or IPv6 CIDR address range.
+        - CidrIp: !Ref SecurityGroupCIDR
+          FromPort: 22
+          IpProtocol: TCP
+          ToPort: 22
+      SecurityGroupEgress:
+        # Adds an outbound rule to a security group, which permits instances
+        # to receive traffic from the specified IPv4 or IPv6 CIDR address range.
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          IpProtocol: TCP
+          ToPort: 80
+        - CidrIp: 0.0.0.0/0
+          FromPort: 443
+          IpProtocol: TCP
+          ToPort: 443
       Tags:
         - Key: Name
           Value: !Ref EnvironmentName
