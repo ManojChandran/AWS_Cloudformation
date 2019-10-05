@@ -22,13 +22,13 @@ Parameters:
     Description: VPC to Operate in
     Type: AWS::EC2::VPC::Id
 
-  PeerOwnerIDdetails:
-    Description: Owner ID of VPC to peer with.
-    Type: String
-
-  PeerVPCRoleArn:
-    Description: VPC Role Arn to peer with.
-    Type: String
+#  PeerOwnerIDdetails:
+#    Description: Owner ID of VPC to peer with.
+#    Type: String
+#
+#  PeerVPCRoleArn:
+#    Description: VPC Role Arn to peer with.
+#    Type: String
 
   PeerOwnerVPCId:
     Description: VPC Id to peer with.
@@ -42,8 +42,8 @@ Resources:
   VpcPeeringConnection:
     Type: AWS::EC2::VPCPeeringConnection
     Properties:
-      PeerOwnerId: !Ref PeerOwnerIDdetails
-      PeerRoleArn: !Ref PeerVPCRoleArn
+#      PeerOwnerId: !Ref PeerOwnerIDdetails
+#      PeerRoleArn: !Ref PeerVPCRoleArn
       PeerVpcId: !Ref PeerOwnerVPCId
       VpcId: !Ref MyVPC
       Tags:
