@@ -64,6 +64,7 @@ Resources:
           Value: !Sub ${SubnetType} Subnet
 
   RouteTable:
+    DependsOn: Subnet
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref MyVPC
@@ -72,13 +73,11 @@ Resources:
           Value: !Sub ${SubnetType} Routetable
 
   SubnetRouteTableAssociation:
+    DependsOn: RouteTable
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref RouteTable
       SubnetId: !Ref Subnet
-      Tags:
-        - Key: Name
-          Value: !Sub ${SubnetType} Subnet
 
   PublicRoute:
     Condition: PublicSubnet
@@ -87,13 +86,10 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref VPCGatewayID
       RouteTableId: !Ref RouteTable
-      Tags:
-        - Key: Name
-          Value: !Sub ${SubnetType} Subnet route
 
 Outputs:
   MySubnet:
     Description: A reference to the public subnet in the 2nd Availability Zone
     Value: !Ref Subnet
     Export:
-      Name: !Sub "${MyVPC}-${SubnetType}-Subnet"
+      Name: !Sub "${MyVPC}-${SubnetType}-${AWS::StackName}-Subnet"

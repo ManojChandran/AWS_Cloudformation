@@ -75,15 +75,13 @@ Resources:
 
   VPCFlowLog:
     Type: AWS::EC2::FlowLog
+    DependsOn: LogBucket
     Properties:
       LogDestination: !Sub '${LogBucket.Arn}/${LogFilePrefix}/'
       LogDestinationType: s3
       ResourceId: !Ref MyVPC
       ResourceType: 'VPC'
       TrafficType: !Ref TrafficType
-      Tags:
-        - Key: Name
-          Value: !Ref MyVPC
 
 Outputs:
   StackName:

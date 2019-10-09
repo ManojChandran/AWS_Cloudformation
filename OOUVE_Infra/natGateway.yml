@@ -43,9 +43,6 @@ Resources:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
-      Tags:
-        - Key: Name
-          Value: !Sub ${MyVPC} NatEIP
 
   NatGateway:
     DependsOn: NatGatewayEIP
@@ -53,9 +50,6 @@ Resources:
     Properties:
       AllocationId: !GetAtt NatGatewayEIP.AllocationId
       SubnetId: !Select [ 0, !Ref PublicSubnetID ]
-      Tags:
-        - Key: Name
-          Value: !Sub ${MyVPC} Natgateway
 
   PrivateRoute:
     Type: AWS::EC2::Route
@@ -64,18 +58,15 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       RouteTableId: !Ref PrivteSubnetRouteTable
       NatGatewayId: !Ref NatGateway
-      Tags:
-        - Key: Name
-          Value: !Sub ${MyVPC} NatRoute
 
 Outputs:
   MyNatGateway:
     Description: A reference to the created NAT gateway
     Value: !Ref NatGateway
     Export:
-      Name: !Sub "${MyVPC}-NatGateway"
+      Name: !Sub "${MyVPC}-${AWS::StackName}-NatGateway"
   MyNatGatewayEIP:
     Description: A reference to the created NAT gateway
     Value: !Ref NatGatewayEIP
     Export:
-      Name: !Sub "${MyVPC}-NatGatewayEIP"
+      Name: !Sub "${MyVPC}-${AWS::StackName}-NatGatewayEIP"

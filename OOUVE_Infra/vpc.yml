@@ -48,6 +48,7 @@ Resources:
           Value: !Ref EnvironmentName
 
   InternetGateway: # Declare Internet Gateway resource
+    DependsOn: VPC
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
@@ -55,13 +56,11 @@ Resources:
           Value: !Ref EnvironmentName
 
   VPCGatewayAttachment: # Attach Internet gateway to VPC
+    DependsOn: InternetGateway
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: !Ref EnvironmentName
 
 Outputs:
   MyVPC:

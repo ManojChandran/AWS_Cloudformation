@@ -1,0 +1,66 @@
+---
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: 'AWS Cloudfromation template for autoscaling group'
+
+Metadata:
+  License: Apache-2.0
+
+Parameters:
+  EnvironmentName:
+    Description: An Environment name that will prefix the resources
+    Type: String
+    AllowedValues: [DEV, TEST, PROD, SUPP]
+    ConstraintDescription: must be DEV, TEST, PROD or SUPP
+
+#Mappings:
+
+#Conditions:
+
+Resources:
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:                # optional, list of String
+        - String
+      Cooldown: String     # optional
+      DesiredCapacity: String     # optional
+      HealthCheckGracePeriod: Integer     # optional
+      HealthCheckType: String     # optional
+      InstanceId: String     # optional
+      LaunchConfigurationName: String     # optional
+      LoadBalancerNames:                # optional, list of String
+        - String
+      MaxSize: String     # required
+      MetricsCollection:                # optional, list of MetricsCollection
+        - MetricsCollection
+      MinSize: String     # required
+      NotificationConfigurations:                # optional, list of NotificationConfiguration
+        - NotificationConfiguration
+      PlacementGroup: String     # optional
+      Tags:                # optional, list of TagProperty
+        - TagProperty
+      TargetGroupARNs:                # optional, list of String
+        - String
+      TerminationPolicies:                # optional, list of String
+        - String
+      VPCZoneIdentifier:                # optional, list of String
+        - String
+
+Outputs:
+  AutoScalingGroup:
+    Description: The Auto Scaling Group for our Company
+    Value: !Ref AutoScalingGroup
+    Export:
+      Name: !Sub "${EnvironmentName}-ASGID"
