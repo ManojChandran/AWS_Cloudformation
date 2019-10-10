@@ -1,0 +1,97 @@
+---
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: 'Cloudformation Template to create a EC2 Jenkins instance'
+
+Metadata:
+  License: Apache-2.0
+
+Parameters:
+  EnvironmentName:
+    Description: An Environment name that will prefix the resources
+    Type: String
+    AllowedValues: [DEV, TEST, PROD, SUPP]
+    ConstraintDescription: must be DEV, TEST, PROD or SUPP
+
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+
+  InstanceType:
+    Description: EC2 instance type (has default, AllowedValues)
+    Type: String
+    Default: t2.small
+    AllowedValues: [t1.micro, t2.nano, t2.micro, t2.small, t2.medium, t2.large, m1.small,
+      m1.medium, m1.large, m1.xlarge, m2.xlarge, m2.2xlarge, m2.4xlarge, m3.medium,
+      m3.large, m3.xlarge, m3.2xlarge, m4.large, m4.xlarge, m4.2xlarge, m4.4xlarge,
+      m4.10xlarge, c1.medium, c1.xlarge, c3.large, c3.xlarge, c3.2xlarge, c3.4xlarge,
+      c3.8xlarge, c4.large, c4.xlarge, c4.2xlarge, c4.4xlarge, c4.8xlarge, g2.2xlarge,
+      g2.8xlarge, r3.large, r3.xlarge, r3.2xlarge, r3.4xlarge, r3.8xlarge, i2.xlarge,
+      i2.2xlarge, i2.4xlarge, i2.8xlarge, d2.xlarge, d2.2xlarge, d2.4xlarge, d2.8xlarge,
+      hi1.4xlarge, hs1.8xlarge, cr1.8xlarge, cc2.8xlarge, cg1.4xlarge]
+    ConstraintDescription: must be a valid EC2 instance type.
+
+  SecutiyGroups:
+    Description: List of Secruity groups
+    Type: "List<AWS::EC2::SecurityGroup::Id>"
+
+  InstanceImageId:
+    Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+
+  SubnetIDS:
+    Description: Subnet IDs list
+    Type: "List<AWS::EC2::Subnet::Id>"
+
+#Mappings:
+
+#Conditions:
+
+Resources:
+  myJenkinsEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      SecurityGroupIds: !Ref SecutiyGroups
+      ImageId: !Ref InstanceImageId
+      KeyName: !Ref KeyName
+      SubnetId: !Select [ 0, !Ref SubnetIDS ]
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          yum install java-1.8.0 -y
+          wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+          rpm --import http://pkg.jenkins-ci.org/redhat-stable/jenkins-ci.org.key
+          yum install jenkins -y
+          service jenkins start
+          chkconfig jenkins on
+      Tags:
+        - Key: Name
+          Value: !Select [ 0, !Ref SubnetIDS ]
+
+Outputs:
+  InstanceId:
+    Description: InstanceId of the newly created EC2 instance
+    Value: !Ref 'myJenkinsEC2'
+  PrivateDnsName:
+    Description: The private DNS name of the instance.
+    Value: !GetAtt myJenkinsEC2.PrivateDnsName
+  PublicDnsName:
+    Description: The public DNS name of the instance.
+    Value: !GetAtt myJenkinsEC2.PublicDnsName
+  PrivateIp:
+    Description: Private IP of the instance.
+    Value: !GetAtt myJenkinsEC2.PrivateIp

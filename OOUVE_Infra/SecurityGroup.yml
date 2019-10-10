@@ -21,6 +21,8 @@ Parameters:
   EnvironmentName:
     Description: An Environment name that will prefix the resources
     Type: String
+    AllowedValues: [DEV, TEST, PROD, SUPP]
+    ConstraintDescription: must be DEV, TEST, PROD or SUPP
 
   MyVPC:
     Description: VPC to Operate in
@@ -31,7 +33,7 @@ Parameters:
     Type: String
 
   SecurityGroupCIDR:
-    Description: The IP address range that can be used to SSH to the EC2 instances
+    Description: The IP address range that can be used to SSH to the EC2 instances, specify 0.0.0.0/0 for bastion host
     Type: String
     MinLength: 9
     MaxLength: 18
